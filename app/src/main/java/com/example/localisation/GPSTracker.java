@@ -91,6 +91,8 @@ public class GPSTracker extends Service implements LocationListener {
     }
     public Location getNetworkLocation(){
         try {
+            locationManager = (LocationManager) mContext
+                    .getSystemService(LOCATION_SERVICE);
 
             // Getting network status
             isNetworkEnabled = locationManager
