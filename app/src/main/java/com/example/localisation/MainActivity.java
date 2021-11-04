@@ -3,8 +3,10 @@ package com.example.localisation;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -48,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
                     double longitude = gps.getLongitude();
 
                     // \n is for new line
-                    Toast.makeText(getApplicationContext(), "Your gps Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+                    String isMock = "Mocked: " + isMockSettingsON(MainActivity.this);
+                    Toast.makeText(getApplicationContext(), "Your gps Location is - \nLat: " + latitude + "\nLong: " + longitude+ "\n" + isMock, Toast.LENGTH_LONG).show();
                 } else {
                     // Can't get location.
                     // GPS or network is not enabled.
@@ -71,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
                     double longitude = gps.getLongitude();
 
                     // \n is for new line
-                    Toast.makeText(getApplicationContext(), "Your network Location is - \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+                    String isMock = "Mocked: " + isMockSettingsON(MainActivity.this);
+                    Toast.makeText(getApplicationContext(), "Your network Location is - \nLat: " + latitude + "\nLong: " + longitude + "\n" + isMock , Toast.LENGTH_LONG).show();
                 } else {
                     // Can't get location.
                     // GPS or network is not enabled.
@@ -80,5 +84,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    public static boolean isMockSettingsON(Context context) {
+        // returns true if mock location enabled, false if not enabled.
+        if (Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ALLOW_MOCK_LOCATION).equals("0"))
+            return false;
+        else
+            return true;
     }
 }
