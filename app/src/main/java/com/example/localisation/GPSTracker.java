@@ -27,6 +27,8 @@ public class GPSTracker extends Service implements LocationListener {
     // Flag for network status
     boolean isNetworkEnabled = false;
 
+    boolean isFusedEnabled = false;
+
     // Flag for GPS status
     boolean canGetLocation = false;
 
@@ -43,12 +45,25 @@ public class GPSTracker extends Service implements LocationListener {
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
-    public GPSTracker(Context context, boolean useNetwork) {
+    public enum PROVIDER_TYPE{GPS,NETWORK,FUSED,PASSIVE}
+
+    public GPSTracker(Context context, PROVIDER_TYPE pType) {
         this.mContext = context;
-        if(useNetwork){
-            getNetworkLocation();
-        }else{
-            getGpsLocation();
+        switch (pType){
+            case GPS:
+                getGpsLocation();
+                break;
+            case NETWORK:
+                getNetworkLocation();
+                break;
+            case FUSED:
+                getFusedLocation();
+                break;
+            case PASSIVE:
+                getPassiveLocation();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + pType);
         }
     }
 
@@ -123,7 +138,74 @@ public class GPSTracker extends Service implements LocationListener {
 
         return location;
     }
+    public Location getFusedLocation(){
+        try {
+            locationManager = (LocationManager) mContext
+                    .getSystemService(LOCATION_SERVICE);
 
+            // Getting network status
+            isFusedEnabled = locationManager
+                    .isProviderEnabled(LocationManager.FUSED_PROVIDER);
+
+
+            if (isFusedEnabled) {
+                this.canGetLocation = true;
+                locationManager.requestLocationUpdates(
+                        LocationManager.FUSED_PROVIDER,
+                        MIN_TIME_BW_UPDATES,
+                        MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                Log.d("fused", "fused");
+                if (locationManager != null) {
+                    location = locationManager
+                            .getLastKnownLocation(LocationManager.FUSED_PROVIDER);
+                    if (location != null) {
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                    }
+                }
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return location;
+    }
+    public Location getPassiveLocation(){
+        try {
+            locationManager = (LocationManager) mContext
+                    .getSystemService(LOCATION_SERVICE);
+
+            // Getting network status
+            isFusedEnabled = locationManager
+                    .isProviderEnabled(LocationManager.PASSIVE_PROVIDER);
+
+
+            if (isFusedEnabled) {
+                this.canGetLocation = true;
+                locationManager.requestLocationUpdates(
+                        LocationManager.PASSIVE_PROVIDER,
+                        MIN_TIME_BW_UPDATES,
+                        MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                Log.d("passive", "passive");
+                if (locationManager != null) {
+                    location = locationManager
+                            .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+                    if (location != null) {
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                    }
+                }
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return location;
+    }
 
 
     /**
